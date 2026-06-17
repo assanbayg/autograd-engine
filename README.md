@@ -6,7 +6,7 @@ It should compute gradients using backpropagation.
 
 
 ## To run
-\```bash
+```bash
 sudo apt install g++ graphviz-dev graphviz
 make
-\```
+```
