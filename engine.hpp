@@ -21,33 +21,35 @@ class Value : public std::enable_shared_from_this<Value> {
 
   Value(double data, std::unordered_set<ValuePtr> children = {},
         std::string op = "")
-      : data(data), grad(0.0), _backward([]() {}), _prev(children), _op(op) {};
+      : data(data),
+        grad(0.0),
+        _backward([]() {}),
+        _prev(std::move(children)),
+        _op(op) {};
 
-  ~Value();
+  Value(const Value&) = delete;
+  Value& operator=(const Value&) = delete;
 
   //  Factory method for creating ValuePtr
   static ValuePtr make(double data, std::unordered_set<ValuePtr> children = {},
                        std::string op = "") {
-    return std::make_shared<Value>(data, children, op);
+    return std::make_shared<Value>(data, std::move(children), op);
   }
-
-  ValuePtr operator+(const ValuePtr& other);
-  ValuePtr operator*(const ValuePtr& other);
 
   ValuePtr pow(double exponent);
 
   ValuePtr relu();
 
-  ValuePtr operator-();
-
-  ValuePtr operator-(const ValuePtr& other);
-  ValuePtr operator/(const ValuePtr& other);
-  ValuePtr operator=(const ValuePtr& other);
-
   void backward();
 
   void print(std::ostream& out) const;
 };
+
+ValuePtr operator+(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator*(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator-(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator/(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator-(const ValuePtr& a);  // Negation
 
 std::ostream& operator<<(std::ostream& os, const ValuePtr& val);
 
