@@ -53,6 +53,6 @@ data/
 *.idx
 *.gz
 
-autograd
+main
 *.dot
 *.svg
