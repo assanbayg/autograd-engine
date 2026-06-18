@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "engine.hpp"
+#include "autograd/engine.hpp"
 
 void trace(ValuePtr root, std::unordered_set<ValuePtr>& nodes,
            std::vector<std::pair<ValuePtr, ValuePtr>>& edges) {
