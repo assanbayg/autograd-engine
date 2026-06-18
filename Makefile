@@ -14,4 +14,4 @@ main.o: main.cpp
 	$(CPP) -c $(Flags) main.cpp -o main.o
 
 clean:
-	rm -f *.o main
+	rm -f *.o main graph.dot graph.svg

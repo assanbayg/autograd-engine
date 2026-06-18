@@ -15,7 +15,7 @@ class Value : public std::enable_shared_from_this<Value> {
  public:
   double data;
   double grad;
-  std::function<void()> _backward;
+  std::function<void(double)> _backward;
   std::unordered_set<ValuePtr> _prev;
   std::string _op;
 
@@ -23,7 +23,7 @@ class Value : public std::enable_shared_from_this<Value> {
         std::string op = "")
       : data(data),
         grad(0.0),
-        _backward([]() {}),
+        _backward([](double) {}),
         _prev(std::move(children)),
         _op(op) {};
 
