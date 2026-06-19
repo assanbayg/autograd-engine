@@ -46,9 +46,20 @@ class Value : public std::enable_shared_from_this<Value> {
 };
 
 ValuePtr operator+(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator+(const ValuePtr& a, double b);
+ValuePtr operator+(double a, const ValuePtr& b);
+
 ValuePtr operator*(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator*(const ValuePtr& a, double b);
+ValuePtr operator*(double a, const ValuePtr& b);
+
 ValuePtr operator-(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator-(const ValuePtr& a, double b);
+ValuePtr operator-(double a, const ValuePtr& b);
+
 ValuePtr operator/(const ValuePtr& a, const ValuePtr& b);
+ValuePtr operator/(const ValuePtr& a, double b);
+ValuePtr operator/(double a, const ValuePtr& b);
 ValuePtr operator-(const ValuePtr& a);  // Negation
 
 std::ostream& operator<<(std::ostream& os, const ValuePtr& val);

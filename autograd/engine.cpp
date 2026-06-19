@@ -11,12 +11,13 @@
 
 ValuePtr Value::pow(double exponent) {
   auto out = Value::make(std::pow(this->data, exponent),
-                         Children{shared_from_this()}, "pow");
+                         std::unordered_set{shared_from_this()}, "pow");
 
-  out->_backward = [self = shared_from_this(), exponent](double grad) {
+  Value* self = this;
+
+  out->_backward = [self, exponent](double grad) {
     self->grad += exponent * std::pow(self->data, exponent - 1) * grad;
   };
-
   return out;
 }
 
@@ -24,7 +25,9 @@ ValuePtr Value::relu() {
   auto newData = this->data < 0 ? 0.0 : this->data;
   auto out = Value::make(newData, Children{shared_from_this()}, "ReLU");
 
-  out->_backward = [self = shared_from_this(), newData](double grad) {
+  Value* self = this;
+
+  out->_backward = [self = self, newData](double grad) {
     self->grad += newData > 0 ? grad : 0.0;
   };
 
@@ -57,39 +60,66 @@ void Value::backward() {
 void Value::print(std::ostream& out) const {}
 
 ValuePtr operator+(const ValuePtr& a, const ValuePtr& b) {
-  auto out = Value::make(a->data + b->data, Children{a, b}, "+");
+  auto out = Value::make(a->data + b->data, std::unordered_set{a, b}, "+");
 
-  out->_backward = [a, b](double grad) {
-    a->grad += grad;
-    b->grad += grad;
+  Value* ap = a.get();
+  Value* bp = b.get();
+  out->_backward = [ap, bp](double grad) {
+    ap->grad += grad;
+    bp->grad += grad;
   };
-
   return out;
 }
+
+ValuePtr operator+(const ValuePtr& a, double b) { return a + Value::make(b); }
+ValuePtr operator+(double a, const ValuePtr& b) { return Value::make(a) + b; }
 
 ValuePtr operator*(const ValuePtr& a, const ValuePtr& b) {
   auto out = Value::make(a->data * b->data, Children{a, b}, "*");
 
-  out->_backward = [a, b](double grad) {
-    a->grad += b->data * grad;
-    b->grad += a->data * grad;
+  Value* ap = a.get();
+  Value* bp = b.get();
+  out->_backward = [ap, bp](double grad) {
+    ap->grad += bp->data * grad;
+    bp->grad += ap->data * grad;
   };
 
   return out;
 }
 
+ValuePtr operator*(const ValuePtr& a, double b) { return a * Value::make(b); }
+ValuePtr operator*(double a, const ValuePtr& b) { return Value::make(a) * b; }
+
 ValuePtr operator-(const ValuePtr& a) {  // Negation
   auto out = Value::make(-a->data, Children{a}, "neg");
 
-  out->_backward = [a](double grad) { a->grad += -grad; };
+  Value* ap = a.get();
+
+  out->_backward = [ap](double grad) { ap->grad += -grad; };
 
   return out;
 }
 
 ValuePtr operator-(const ValuePtr& a, const ValuePtr& b) { return a + (-b); }
 
+ValuePtr operator-(const ValuePtr& a, double b) {
+  return a + (-Value::make(b));
+}
+
+ValuePtr operator-(double a, const ValuePtr& b) {
+  return Value::make(a) + (-b);
+}
+
 ValuePtr operator/(const ValuePtr& a, const ValuePtr& b) {
   return a * (b->pow(-1));
+}
+
+ValuePtr operator/(const ValuePtr& a, double b) {
+  return a * (Value::make(b)->pow(-1));
+}
+
+ValuePtr operator/(double a, const ValuePtr& b) {
+  return Value::make(a) * (b->pow(-1));
 }
 
 std::ostream& operator<<(std::ostream& os, const ValuePtr& val) {
