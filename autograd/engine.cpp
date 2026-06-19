@@ -4,8 +4,10 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_set>
+#include <vector>
 
 ValuePtr Value::pow(double exponent) {
   auto out = Value::make(std::pow(this->data, exponent),
@@ -31,7 +33,26 @@ ValuePtr Value::relu() {
 }
 
 void Value::backward() {
-  // TODO !!!
+  std::vector<ValuePtr> topo;
+  std::unordered_set<Value*> visited;
+
+  std::function<void(const ValuePtr&)> build_topo = [&](const ValuePtr& v) {
+    if (visited.count(v.get())) return;
+    visited.insert(v.get());
+    for (const auto& child : v->_prev) {
+      build_topo(child);
+    }
+    topo.push_back(v);
+  };
+
+  build_topo(shared_from_this());
+
+  grad = 1.0;
+  for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
+    if ((*it)->_backward) {
+      (*it)->_backward((*it)->grad);
+    }
+  }
 }
 
 void Value::print(std::ostream& out) const {}
