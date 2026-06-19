@@ -39,6 +39,7 @@ class Value : public std::enable_shared_from_this<Value> {
   ValuePtr pow(double exponent);
 
   ValuePtr relu();
+  ValuePtr tanh();
 
   void backward();
 

@@ -27,8 +27,21 @@ ValuePtr Value::relu() {
 
   Value* self = this;
 
-  out->_backward = [self = self, newData](double grad) {
+  out->_backward = [self, newData](double grad) {
     self->grad += newData > 0 ? grad : 0.0;
+  };
+
+  return out;
+}
+
+ValuePtr Value::tanh() {
+  double t = std::tanh(this->data);
+  auto out = Value::make(t, Children{shared_from_this()}, "tanh");
+
+  Value* self = this;
+
+  out->_backward = [self, t](double grad) {
+    self->grad += (1.0 - t * t) * grad;
   };
 
   return out;
