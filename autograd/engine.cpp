@@ -11,7 +11,7 @@
 
 ValuePtr Value::pow(double exponent) {
   auto out = Value::make(std::pow(this->data, exponent),
-                         std::unordered_set{shared_from_this()}, "pow");
+                         Children{shared_from_this()}, "pow");
 
   out->_backward = [self = shared_from_this(), exponent](double grad) {
     self->grad += exponent * std::pow(self->data, exponent - 1) * grad;
@@ -22,8 +22,7 @@ ValuePtr Value::pow(double exponent) {
 
 ValuePtr Value::relu() {
   auto newData = this->data < 0 ? 0.0 : this->data;
-  auto out =
-      Value::make(newData, std::unordered_set{shared_from_this()}, "ReLU");
+  auto out = Value::make(newData, Children{shared_from_this()}, "ReLU");
 
   out->_backward = [self = shared_from_this(), newData](double grad) {
     self->grad += newData > 0 ? grad : 0.0;
@@ -58,7 +57,7 @@ void Value::backward() {
 void Value::print(std::ostream& out) const {}
 
 ValuePtr operator+(const ValuePtr& a, const ValuePtr& b) {
-  auto out = Value::make(a->data + b->data, std::unordered_set{a, b}, "+");
+  auto out = Value::make(a->data + b->data, Children{a, b}, "+");
 
   out->_backward = [a, b](double grad) {
     a->grad += grad;
@@ -69,7 +68,7 @@ ValuePtr operator+(const ValuePtr& a, const ValuePtr& b) {
 }
 
 ValuePtr operator*(const ValuePtr& a, const ValuePtr& b) {
-  auto out = Value::make(a->data * b->data, std::unordered_set{a, b}, "*");
+  auto out = Value::make(a->data * b->data, Children{a, b}, "*");
 
   out->_backward = [a, b](double grad) {
     a->grad += b->data * grad;
@@ -80,7 +79,7 @@ ValuePtr operator*(const ValuePtr& a, const ValuePtr& b) {
 }
 
 ValuePtr operator-(const ValuePtr& a) {  // Negation
-  auto out = Value::make(-a->data, std::unordered_set{a}, "neg");
+  auto out = Value::make(-a->data, Children{a}, "neg");
 
   out->_backward = [a](double grad) { a->grad += -grad; };
 

@@ -10,17 +10,17 @@
 
 class Value;
 using ValuePtr = std::shared_ptr<Value>;
+using Children = std::unordered_set<ValuePtr>;
 
 class Value : public std::enable_shared_from_this<Value> {
  public:
   double data;
   double grad;
   std::function<void(double)> _backward;
-  std::unordered_set<ValuePtr> _prev;
+  Children _prev;
   std::string _op;
 
-  Value(double data, std::unordered_set<ValuePtr> children = {},
-        std::string op = "")
+  Value(double data, Children children = {}, std::string op = "")
       : data(data),
         grad(0.0),
         _backward([](double) {}),
@@ -31,7 +31,7 @@ class Value : public std::enable_shared_from_this<Value> {
   Value& operator=(const Value&) = delete;
 
   //  Factory method for creating ValuePtr
-  static ValuePtr make(double data, std::unordered_set<ValuePtr> children = {},
+  static ValuePtr make(double data, Children children = {},
                        std::string op = "") {
     return std::make_shared<Value>(data, std::move(children), op);
   }

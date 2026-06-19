@@ -8,7 +8,7 @@
 
 #include "autograd/engine.hpp"
 
-void trace(ValuePtr root, std::unordered_set<ValuePtr>& nodes,
+void trace(ValuePtr root, Children& nodes,
            std::vector<std::pair<ValuePtr, ValuePtr>>& edges) {
   if (nodes.find(root) == nodes.end()) {
     nodes.insert(root);
@@ -20,7 +20,7 @@ void trace(ValuePtr root, std::unordered_set<ValuePtr>& nodes,
 }
 
 void drawDot(ValuePtr root, std::string rankdir = "LR") {
-  std::unordered_set<ValuePtr> nodes;
+  Children nodes;
   std::vector<std::pair<ValuePtr, ValuePtr>> edges;
 
   trace(root, nodes, edges);
