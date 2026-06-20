@@ -1,4 +1,5 @@
 #include "autograd/engine.hpp"
+#include "gradient_check.cpp"
 #include "trace_graph.cpp"
 
 int main(int argc, char* argv[]) {
@@ -37,6 +38,33 @@ int main(int argc, char* argv[]) {
   // Draw the graph!
   drawDot(out, "LR");
 
-  std::cout << "Finished!" << std::endl;
+  std::cout << "Finished drawing the graph!" << std::endl;
+
+  std::cout << "Testing autograd engine\n\n" << std::endl;
+
+  check_gradient(
+      "tanh", 0.5, [](ValuePtr v) { return v->tanh(); },
+      [](double d) { return std::tanh(d); });
+
+  check_gradient(
+      "reLu", 2.0, [](ValuePtr v) { return v->relu(); },
+      [](double d) { return d < 0 ? 0.0 : d; });
+
+  check_gradient(
+      "pow (x^3)", 1.5, [](ValuePtr v) { return v->pow(3.0); },
+      [](double d) { return std::pow(d, 3.0); });
+
+  check_gradient(
+      "x*x", 1.5, [](ValuePtr v) { return v * v; },
+      [](double d) { return d * d; });
+
+  check_gradient(
+      "x+x", 1.5, [](ValuePtr v) { return v + v; },
+      [](double d) { return d + d; });
+
+  check_gradient(
+      "x*x + x", 1.5, [](ValuePtr v) { return v * v + v; },
+      [](double d) { return d * d + d; });
+
   return 0;
 }
