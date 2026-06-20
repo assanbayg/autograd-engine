@@ -11,7 +11,7 @@
 
 ValuePtr Value::pow(double exponent) {
   auto out = Value::make(std::pow(this->data, exponent),
-                         std::unordered_set{shared_from_this()}, "pow");
+                         Children{shared_from_this()}, "pow");
 
   Value* self = this;
 
@@ -73,7 +73,7 @@ void Value::backward() {
 void Value::print(std::ostream& out) const {}
 
 ValuePtr operator+(const ValuePtr& a, const ValuePtr& b) {
-  auto out = Value::make(a->data + b->data, std::unordered_set{a, b}, "+");
+  auto out = Value::make(a->data + b->data, Children{a, b}, "+");
 
   Value* ap = a.get();
   Value* bp = b.get();
